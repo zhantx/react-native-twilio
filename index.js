@@ -16,7 +16,10 @@ const _eventHandlers = {
 
 const Twilio = {
   initWithTokenUrl (tokenUrl) {
-    TwilioRCT.initWithTokenUrl(tokenUrl)
+    // TwilioRCT.initWithTokenUrl(tokenUrl)
+    fetch(tokenUrl)
+    .then(res => res.json())
+    .then(json => TwilioRCT.initWithToken(json.token))
   },
   initWithToken (token) {
     TwilioRCT.initWithToken(token)

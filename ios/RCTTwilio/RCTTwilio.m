@@ -55,7 +55,10 @@ RCT_EXPORT_METHOD(connect:(NSDictionary *) params) {
 }
 
 RCT_EXPORT_METHOD(disconnect) {
-  [_connection disconnect];
+  if(_connection != nil){
+    [_connection disconnect];
+  }
+  [_phone disconnectAll];
 }
 
 RCT_EXPORT_METHOD(accept) {

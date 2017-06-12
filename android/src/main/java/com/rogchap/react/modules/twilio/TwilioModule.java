@@ -113,6 +113,7 @@ public class TwilioModule extends ReactContextBaseJavaModule implements Connecti
                             createDeviceWithToken(token, dl);
                         } else {
                             _phone.updateCapabilityToken(token);
+                            sendEvent("deviceReady", null);
                         }
                     } catch (Exception e) {
                         Log.e(TAG, e.getMessage());
@@ -128,9 +129,12 @@ public class TwilioModule extends ReactContextBaseJavaModule implements Connecti
             Log.d(TAG, "device was already initialized");
             try {
                 if (_phone != null) {
-                    _phone.release();
+                    // _phone.release();
+                  _phone.updateCapabilityToken(token);
+                  sendEvent("deviceReady", null);
+                } else {
+                  createDeviceWithToken(token, dl);
                 }
-                createDeviceWithToken(token, dl);
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());
             }
@@ -148,11 +152,19 @@ public class TwilioModule extends ReactContextBaseJavaModule implements Connecti
          *  If you're using a Service, you'll want to override Service.onStartCommand().
          *  If you're using a BroadcastReceiver, override BroadcastReceiver.onReceive().
          */
-        Intent intent = new Intent();
-        intent.setAction("com.rogchap.react.modules.twilio.incoming");
-        PendingIntent pi = PendingIntent.getBroadcast(getReactApplicationContext(), 0, intent, 0);
-        _phone.setIncomingIntent(pi);
+        // Intent intent = new Intent();
+        // intent.setAction("com.rogchap.react.modules.twilio.incoming");
+        // PendingIntent pi = PendingIntent.getBroadcast(getReactApplicationContext(), 0, intent, 0);
+        Intent intent = new Intent(getReactApplicationContext(), TwilioModule.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getReactApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        _phone.setIncomingIntent(pendingIntent);
         sendEvent("deviceReady", null);
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
     }
 
     @ReactMethod
@@ -211,6 +223,7 @@ public class TwilioModule extends ReactContextBaseJavaModule implements Connecti
             _connection.disconnect();
             _connection = null;
         }
+        // _phone.disconnectAll();
     }
 
     @ReactMethod
@@ -300,9 +313,9 @@ public class TwilioModule extends ReactContextBaseJavaModule implements Connecti
     @Override
     public void onConnected(Connection connection) {
         params = Arguments.createMap();
-        if (connection.getParameters().containsKey("To")) {
-            params.putString("To", connection.getParameters().get("To"));
-        }
+        // if (connection.getParameters().containsKey("To")) {
+        //     params.putString("To", connection.getParameters().get("To"));
+        // }
         sendEvent("connectionDidConnect", params);
     }
 
